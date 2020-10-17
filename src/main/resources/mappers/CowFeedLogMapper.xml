@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.CowFeedLogMapper">
+
+    <update id="updateBatch">
+        update cow_feed_log
+        set `status` = 0
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <select id="selectBySelective" resultType="com.cosmoplat.cowfarm.dto.CowFeedLogRespDto">
+        select a.*,
+        b.cowshed_name cowshedName
+        from cow_feed_log a
+        left join cowshed_info b
+        on a.cowshed_id = b.cowshed_id
+        <where>
+            a.`status` = 1
+            and b.`status` = 1
+            <if test="dto.cowshedId != null and dto.cowshedId != ''">
+                and a.cowshed_id = #{dto.cowshedId}
+            </if>
+            <if test="dto.startDate != null ">
+                and a.feed_time <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and a.feed_time <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+    <select id="countSelectBySelective" resultType="java.lang.Integer">
+        select count(1)
+        from cow_feed_log a
+        left join cowshed_info b
+        on a.cowshed_id = b.cowshed_id
+        <where>
+            a.`status` = 1
+            and b.`status` = 1
+            <if test="dto.cowshedId != null and dto.cowshedId != ''">
+                and a.cowshed_id = #{dto.cowshedId}
+            </if>
+            <if test="dto.startDate != null ">
+                and a.feed_time <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and a.feed_time <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllByStatus" resultType="com.cosmoplat.cowfarm.dto.CowFeedLogRespDto">
+        select a.*,
+               b.cowshed_name cowshedName
+        from cow_feed_log a
+                 left join cowshed_info b
+                           on a.cowshed_id = b.cowshed_id
+        where a.`status` = 1
+          and b.`status` = 1
+    </select>
+
+    <select id="findByCowshedId" resultType="com.cosmoplat.cowfarm.dto.CowFeedLogRespDto">
+        select a.*,
+               b.cowshed_name cowshedName
+        from cow_feed_log a
+                 left join cowshed_info b
+                           on a.cowshed_id = b.cowshed_id
+        where a.`status` = 1
+          and b.`status` = 1
+          and a.cowshed_id = #{cowshedId}
+    </select>
+
+</mapper>

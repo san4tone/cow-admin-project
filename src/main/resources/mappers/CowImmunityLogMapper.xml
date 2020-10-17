@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.CowImmunityLogMapper">
+
+    <update id="updateStatusById" parameterType="string">
+        update cow_immunity_log
+        SET `status` = 0
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateBatch" parameterType="list">
+        update cow_immunity_log
+        SET `status` = 0
+        WHERE id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <select id="findAllByStatus" resultType="com.cosmoplat.cowfarm.pojo.CowImmunityLog">
+        select *
+        from cow_immunity_log
+        where `status` = 1
+    </select>
+
+    <select id="findByIdAndStatus" resultType="com.cosmoplat.cowfarm.pojo.CowImmunityLog">
+        select *
+        from cow_immunity_log
+        where `status` = 1
+          and id = #{id}
+    </select>
+
+    <select id="selectBySelective" resultType="com.cosmoplat.cowfarm.pojo.CowImmunityLog">
+        select *
+        from cow_immunity_log
+        <where>
+            `status` = 1
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.immuneMode != null">
+                and immune_mode = #{dto.immuneMode}
+            </if>
+            <if test="dto.immuneName != null">
+                and immune_name = #{dto.immuneName}
+            </if>
+            <if test="dto.startDate != null ">
+                and immune_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and immune_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+    <select id="countSelectBySelective" resultType="java.lang.Integer">
+        select count(1)
+        from cow_immunity_log
+        <where>
+            `status` = 1
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.immuneMode != null">
+                and immune_mode = #{dto.immuneMode}
+            </if>
+            <if test="dto.immuneName != null">
+                and immune_name = #{dto.immuneName}
+            </if>
+            <if test="dto.startDate != null ">
+                and immune_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and immune_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.CowTransferLogMapper">
+
+
+    <select id="selectCountByCowId" resultType="int">
+        select count(1)
+        from cow_transfer_log
+        where cow_id = #{cowId}
+          and `status` = 1
+    </select>
+
+    <select id="findCowTransferLogByCowId" resultType="com.cosmoplat.cowfarm.pojo.CowTransferLog">
+        select *
+        from cow_transfer_log
+        where `status` = 1
+          and cow_id = #{cowId}
+    </select>
+
+    <select id="findAll" resultType="com.cosmoplat.cowfarm.pojo.CowTransferLog">
+        select *
+        from cow_transfer_log
+        where `status` = 1
+    </select>
+
+    <select id="selectBySelective" resultType="com.cosmoplat.cowfarm.pojo.CowTransferLog">
+        select *
+        from cow_transfer_log
+        <where>
+            `status` = 1
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.turnCause != null ">
+                and turn_cause = #{dto.turnCause}
+            </if>
+            <if test="dto.startDate != null ">
+                and turn_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and turn_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+    <select id="countSelectBySelective" resultType="int">
+        select count(1)
+        from cow_transfer_log
+        <where>
+            `status` = 1
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.turnCause != null ">
+                and turn_cause = #{dto.turnCause}
+            </if>
+            <if test="dto.startDate != null ">
+                and turn_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and turn_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateBatch">
+        update cow_transfer_log
+        set `status` = 0
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateOldLogStatusByCowIdAndLogId">
+        update cow_transfer_log
+        set `status` = 0
+        where cow_id = #{cowId}
+          and id != #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.cosmoplat.cowfarm.pojo.ext.CowMoveBarExt">
+        SELECT a.*,
+               b.label_zh reason
+        FROM cow_transfer_log a
+                 LEFT JOIN sys_dict b ON a.turn_cause = b.`code`
+        WHERE a.`status` = 1
+          AND b.column_name = 'ZSYY'
+    </select>
+
+    <select id="findBySelective" resultType="com.cosmoplat.cowfarm.pojo.ext.CowMoveBarExt">
+        SELECT
+        a.*,
+        b.label_zh reason
+        FROM
+        cow_transfer_log a
+        LEFT JOIN sys_dict b ON a.turn_cause = b.`code`
+        <where>
+            a.`status` = 1
+            AND b.column_name = 'ZSYY'
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and a.cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.turnCause != null ">
+                and a.turn_cause = #{dto.turnCause}
+            </if>
+            <if test="dto.startDate != null ">
+                and a.turn_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and a.turn_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+
+    <select id="findCowTransferExts" resultType="com.cosmoplat.cowfarm.pojo.ext.CowTransferExt">
+        SELECT
+        a.cow_id cowId,
+        a.turn_out_num turnOutNum,
+        a.turn_up_num turnUpNum,
+        b.label_zh reason,
+        date_format(a.turn_date, '%Y-%m-%d') turnDateStr,
+        a.turn_up_man turnUpMan,
+        a.remark remark
+        FROM
+        cow_transfer_log a
+        LEFT JOIN sys_dict b ON a.turn_cause = b.`code`
+        <where>
+            a.`status` = 1
+            AND b.column_name = 'ZSYY'
+            <if test="dto.cowId != null and dto.cowId != ''">
+                and a.cow_id = #{dto.cowId}
+            </if>
+            <if test="dto.turnCause != null ">
+                and a.turn_cause = #{dto.turnCause}
+            </if>
+            <if test="dto.startDate != null ">
+                and a.turn_date <![CDATA[>]]> #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null ">
+                and a.turn_date <![CDATA[<]]> #{dto.endDate}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+    <select id="findAllCowTransferExts" resultType="com.cosmoplat.cowfarm.pojo.ext.CowTransferExt">
+        SELECT a.cow_id                             cowId,
+               a.turn_out_num                       turnOutNum,
+               a.turn_up_num                        turnUpNum,
+               b.label_zh                           reason,
+               date_format(a.turn_date, '%Y-%m-%d') turnDateStr,
+               a.turn_up_man                        turnUpMan,
+               a.remark                             remark
+        FROM cow_transfer_log a
+                 LEFT JOIN sys_dict b ON a.turn_cause = b.`code`
+        WHERE a.`status` = 1
+          AND b.column_name = 'ZSYY'
+    </select>
+
+</mapper>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.CowInfoMapper">
+
+    <!--<select id="findAllInfo" resultType="com.cosmoplat.cowfarm.pojo.ext.CowInfoExt">-->
+    <!--SELECT a.*,-->
+    <!--c.label_zh varieties,-->
+    <!--b.label_zh sexStr,-->
+    <!--d.cowshed_name,-->
+    <!--e.label_zh groupStateStr,-->
+    <!--f.label_zh herdStateStr-->
+    <!--FROM cow_info a-->
+    <!--LEFT JOIN sys_dict b ON a.sex = b.`code`-->
+    <!--LEFT JOIN sys_dict c ON a.varieties_code = c.`code`-->
+    <!--LEFT JOIN cowshed_info d ON a.cowshed_id = d.cowshed_id-->
+    <!--LEFT JOIN sys_dict e ON a.group_state = e.`code`-->
+    <!--LEFT JOIN sys_dict f ON a.herd_state = f.`code`-->
+    <!--WHERE b.column_name = 'NZSEX'-->
+    <!--AND c.column_name = 'PZ'-->
+    <!--AND e.column_name = 'ZQZT'-->
+    <!--AND f.column_name = 'NQZT'-->
+    <!--AND a.`status` = 1;-->
+    <!--</select>-->
+
+
+    <select id="selectBySelective" resultType="com.cosmoplat.cowfarm.pojo.CowInfo">
+        SELECT *
+        FROM cow_info
+        <where>
+            `status` = 1
+            <if test="dto.cowNumStr != null and dto.cowNumStr != ''">
+                and cow_id = #{dto.cowNumStr}
+            </if>
+            <if test="dto.barGroup != null and dto.barGroup != ''">
+                and cowshed_id = #{dto.barGroup}
+            </if>
+            <if test="dto.enterDate1 != null ">
+                and admission_time <![CDATA[>]]> #{dto.enterDate1}
+            </if>
+            <if test="dto.enterDate2 != null ">
+                and admission_time <![CDATA[<]]> #{dto.enterDate2}
+            </if>
+            <if test="dto.herdState != null ">
+                and herd_state = #{dto.herdState}
+            </if>
+            <if test="dto.sex != null ">
+                and sex = #{dto.sex}
+            </if>
+            <if test="dto.isActived != null ">
+                and group_state = #{dto.isActived}
+            </if>
+            <if test="dto.breedCode != null ">
+                and varieties_code = #{dto.breedCode}
+            </if>
+            <if test="dto.leaveDate1 != null ">
+                and leave_time <![CDATA[>]]> #{dto.leaveDate1}
+            </if>
+            <if test="dto.leaveDate2 != null ">
+                and leave_time <![CDATA[<]]> #{dto.leaveDate2}
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+
+    <select id="countSelectBySelective" resultType="java.lang.Integer">
+        select
+        count(1)
+        FROM cow_info
+        <where>
+            `status` = 1
+            <if test="dto.cowNumStr != null and dto.cowNumStr != ''">
+                and cow_id = #{dto.cowNumStr}
+            </if>
+            <if test="dto.barGroup != null ">
+                and cowshed_id = #{dto.barGroup}
+            </if>
+            <if test="dto.enterDate1 != null ">
+                and admission_time <![CDATA[>]]> #{dto.enterDate1}
+            </if>
+            <if test="dto.enterDate2 != null ">
+                and admission_time <![CDATA[<]]> #{dto.enterDate2}
+            </if>
+            <if test="dto.herdState != null ">
+                and herd_state = #{dto.herdState}
+            </if>
+            <if test="dto.sex != null ">
+                and sex = #{dto.sex}
+            </if>
+            <if test="dto.isActived != null ">
+                and group_state = #{dto.isActived}
+            </if>
+            <if test="dto.breedCode != null ">
+                and varieties_code = #{dto.breedCode}
+            </if>
+            <if test="dto.leaveDate1 != null ">
+                and leave_time <![CDATA[>]]> #{dto.leaveDate1}
+            </if>
+            <if test="dto.leaveDate2 != null ">
+                and leave_time <![CDATA[<]]> #{dto.leaveDate2}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findAllInfo" resultType="com.cosmoplat.cowfarm.pojo.CowInfo">
+        select *
+        from cow_info
+        where `status` = 1
+    </select>
+
+    <update id="updateBatch" parameterType="list">
+        UPDATE cow_info
+        SET `status` = 0
+        where cow_id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateStatusById">
+        UPDATE cow_info
+        SET `status` = 0
+        WHERE cow_id = #{id}
+    </update>
+
+    <update id="updateAllCowType">
+        UPDATE cow_info
+        SET `status` = 0
+    </update>
+
+    <update id="updateCowshedIdByCowId">
+        update cow_info
+        set cowshed_id = #{cowshedId}
+        where cow_id = #{cowId}
+    </update>
+
+    <select id="findCowInfoByCowId" resultType="com.cosmoplat.cowfarm.pojo.CowInfo">
+        select *
+        from cow_info
+        where `status` = 1
+          and cow_id = #{id}
+    </select>
+
+
+    <select id="selectIds" resultType="java.lang.String" parameterType="string">
+        select cow_id
+        from cow_info
+        <where>
+            `status` = 1
+            <if test="cowId !=null and  cowId != ''">
+                and cow_id like concat('%', #{cowId}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

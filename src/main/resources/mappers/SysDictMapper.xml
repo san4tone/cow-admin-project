@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.SysDictMapper">
+
+
+    <select id="findSysDictByKey" resultType="com.cosmoplat.cowfarm.dto.SysDictDto"
+            parameterType="string">
+        SELECT `code`,
+               label_zh labelZh,
+               label_en labelEn
+        FROM sys_dict
+        WHERE column_name = #{column}
+          AND `status` = 1
+    </select>
+
+</mapper>

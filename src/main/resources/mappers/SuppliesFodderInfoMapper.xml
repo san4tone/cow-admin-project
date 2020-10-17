@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.SuppliesFodderInfoMapper">
+
+    <update id="updateBatch">
+        update supplies_fodder_info
+        set `status` = 0
+        where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <select id="selectBySelective" resultType="com.cosmoplat.cowfarm.pojo.SuppliesFodderInfo">
+        select *
+        from supplies_fodder_info
+        <where>
+            `status` = 1
+            <if test="dto.fodderId != null and dto.fodderId != ''">
+                and fodder_id like concat('%', #{dto.fodderId}, '%')
+            </if>
+            <if test="dto.fodderName != null and dto.fodderName != ''">
+                and fodder_name like concat('%', #{dto.fodderName}, '%')
+            </if>
+        </where>
+        limit ${(dto.page - 1) * dto.size}, ${dto.size}
+    </select>
+
+    <select id="countSelectBySelective" resultType="java.lang.Integer">
+        select count(1)
+        from supplies_fodder_info
+        <where>
+            `status` = 1
+            <if test="dto.fodderId != null and dto.fodderId != ''">
+                and fodder_id like concat('%', #{dto.fodderId}, '%')
+            </if>
+            <if test="dto.fodderName != null and dto.fodderName != ''">
+                and fodder_name like concat('%', #{dto.fodderName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultType="com.cosmoplat.cowfarm.pojo.SuppliesFodderInfo">
+        select *
+        from supplies_fodder_info
+        where `status` = 1
+          and id = #{id}
+    </select>
+
+
+</mapper>

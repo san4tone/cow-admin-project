@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cosmoplat.cowfarm.mapper.CowshedInfoMapper">
+
+    <select id="findCowshedIds" resultType="java.lang.String" parameterType="string">
+        select cowshed_id
+        from cowshed_info
+        <where>
+            `status` = 1
+            <if test="cowshedId !=null and  cowshedId != ''">
+                and cowshed_id like concat('%', #{cowshedId}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllByStatus" resultType="com.cosmoplat.cowfarm.dto.CowshedRespDto">
+        select cowshed_id   cowshedId,
+               cowshed_name cowshedName
+        from cowshed_info
+        where `status` = 1
+    </select>
+
+</mapper>
